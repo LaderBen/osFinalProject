@@ -4,7 +4,7 @@ TQ = 4
 class Processes:
     PROCESS_COUNT = 0
 
-    def __init__(self, program ):
+    def __init__(self, program):
         Processes.PROCESS_COUNT += 1
         self.pid = Processes.PROCESS_COUNT
         self.program = program
