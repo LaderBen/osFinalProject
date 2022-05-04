@@ -66,14 +66,14 @@ class Processes:
 def Solution(initP: list):
     # p1 = Processes('PA')
     # p2 = Processes('PB')
-    readyQ1, readyQ2, readyQ3, allProcesses = init(initP)
+    readyQ1, readyQ2, readyQ3 = init(initP)
     t = 0
     timeSequence = {}
     while len(readyQ1) + len(readyQ2) + len(readyQ3) > 0:
         if len(readyQ1) > 0:
             p = readyQ1[0]
             t += p.execute()
-            timeSequence[t] = p.pid
+            timeSequence[t] = p
             if p.get_burset() == 0:
                 # terminate
                 readyQ1.pop()
@@ -86,12 +86,12 @@ def Solution(initP: list):
         elif len(readyQ2) > 0:
             p = readyQ2[0]
             t += p.execute()
-            timeSequence[t] = p.pid #{4: 1}
+            timeSequence[t] = p  # {4: 1}
             while p.check_if_generate_new_process():
                 newProcess = Processes('PB')
-                readyQ3.append(newProcess) #readyQ3 = [p2,p3]
-                p.signaled()
-                allProcesses.append(newProcess) #allProcesses = [p1,p2,p3]
+                readyQ3.append(newProcess)  # readyQ3 = [p2,p3]
+                # p.signaled()
+                # allProcesses.append(newProcess) #allProcesses = [p1,p2,p3]
             if p.get_burset() == 0:
                 # terminate
                 readyQ2.pop(0)
@@ -104,11 +104,11 @@ def Solution(initP: list):
         elif len(readyQ3) > 0:
             p = readyQ3[0]
             t += p.execute()
-            timeSequence[t] = p.pid
+            timeSequence[t] = p
             while p.check_if_generate_new_process():
-                p.signaled()
+                # p.signaled()
                 newProcess = Processes('PC')
-                allProcesses.append(newProcess)
+                # allProcesses.append(newProcess)
                 readyQ1.append(newProcess)
             if p.get_burset() == 0:
                 # terminate
@@ -121,8 +121,9 @@ def Solution(initP: list):
                 continue
 
     print("The Number of Signals received by each Process is as follows:")
-    for p in allProcesses:
-        print('p' + str(p.get_pid()) + ':' + str(p.get_signalCount()))
+    printNumberSginals(timeSequence)
+    # for p in allProcesses:
+    #     print('p' + str(p.get_pid()) + ':' + str(p.get_signalCount()))
     print("The Gantt Chart is as follows:")
     printGanttChart(timeSequence)
 
@@ -134,10 +135,9 @@ def init(processes: list):
     readyQ2 = []
     # to store the processes which priority = 3
     readyQ3 = []
-    allProcess = []
     for i in processes:
         p = Processes(i)
-        allProcess.append(p)
+        # allProcess.append(p)
         if i == 'PA':
             readyQ2.append(p)
         elif i == 'PB':
@@ -145,22 +145,54 @@ def init(processes: list):
         elif i == 'PC':
             readyQ1.append(p)
 
-    return readyQ1, readyQ2, readyQ3, allProcess
+    return readyQ1, readyQ2, readyQ3,  # allProcess
 
 
 def printGanttChart(timeSequence: dict):
-    line = ""
-    content = '|'
-    timeline = '0'
+    keys = list(timeSequence.keys())
+    if len(timeSequence) % 13 > 0 or len(timeSequence) < 13:
+        rows = int(len(timeSequence) / 13) + 1
+    else:
+        rows = int(len(timeSequence) / 13)
+    for row in range(rows):
+
+        line = ""
+        content = '|'
+        if row == 0:
+            timeline = '0'
+            start = 0
+        else:
+            timeline = str(keys[row * 13 - 1])
+            start = row * 13
+        if (row + 1) * 13 > len(timeSequence):
+            colum = len(timeSequence) % 13
+        else:
+            colum = 13
+        for i in range(start, start + colum):
+            content += '\tp' + str(timeSequence[keys[i]].pid) + '\t|'
+            timeline += '\t\t' + str(keys[i])
+        for _ in range(len(timeline)):
+            line += "--"
+        print(line)
+        print(content)
+        print(line)
+        print(timeline)
+
+
+def printNumberSginals(timeSequence: dict):
+    allProcesses = {}
+    t = 3
+    while t < max(timeSequence.keys()):
+        for time in timeSequence.keys():
+            while t < time:
+                p = timeSequence[time]
+                p.signaled()
+                t += 3
     for i in timeSequence:
-        content += '\tp' + str(timeSequence[i]) + '\t|'
-        timeline += '\t\t' + str(i)
-    for _ in range(len(timeline)):
-        line += "--"
-    print(line)
-    print(content)
-    print(line)
-    print(timeline)
+        allProcesses[timeSequence[i]] = timeSequence[i].get_signalCount()
+        # print('p'+str(timeSequence[i].pid)+': '+str(timeSequence[i].get_signalCount()))
+    for p in allProcesses:
+        print('p' + str(p.pid) + ': ' + str(allProcesses[p]))
 
 
 if __name__ == '__main__':
