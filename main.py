@@ -149,11 +149,12 @@ def init(processes: list):
 
 
 def printGanttChart(timeSequence: dict):
+    num_element_each_row = 10
     keys = list(timeSequence.keys())
-    if len(timeSequence) % 13 > 0 or len(timeSequence) < 13:
-        rows = int(len(timeSequence) / 13) + 1
+    if len(timeSequence) % num_element_each_row > 0 or len(timeSequence) < 13:
+        rows = int(len(timeSequence) / num_element_each_row) + 1
     else:
-        rows = int(len(timeSequence) / 13)
+        rows = int(len(timeSequence) / num_element_each_row)
     for row in range(rows):
 
         line = ""
@@ -162,12 +163,12 @@ def printGanttChart(timeSequence: dict):
             timeline = '0'
             start = 0
         else:
-            timeline = str(keys[row * 13 - 1])
-            start = row * 13
-        if (row + 1) * 13 > len(timeSequence):
-            colum = len(timeSequence) % 13
+            timeline = str(keys[row * num_element_each_row - 1])
+            start = row * num_element_each_row
+        if (row + 1) * num_element_each_row > len(timeSequence):
+            colum = len(timeSequence) % num_element_each_row
         else:
-            colum = 13
+            colum = num_element_each_row
         for i in range(start, start + colum):
             content += '\tp' + str(timeSequence[keys[i]].pid) + '\t|'
             timeline += '\t\t' + str(keys[i])
